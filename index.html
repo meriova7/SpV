@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+
+<canvas id="myCanvas" width="800" height="500" style="border:1px solid #000000;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+<script>
+var c = document.getElementById("myCanvas"); // canvas
+var ctx = c.getContext("2d");
+var maxWidth = c.width;
+var lineHeight = 25; // velkost riadnu pre Text
+var xText = 5;
+var yText = 20;
+var widthInput = 50; //sirka inputu
+var heightInput = 15; // vyska inputu
+var text = ""; // zadanie
+ctx.font = '12pt Calibri';
+ctx.fillStyle = '#333';
+var levels = [["circle","1,2"], ["circle","3,4"], ["circle","4,6"], ["house","2"], ["house","3"], ["flag","2"], ["flag","3"], ["house","4,5"], ["flag","4,5"]];
+var progress = 0;
+var shapes = [];
+var colShapes = 0;
+var live = false;
+var id = 0;
+
+class Circle {
+  constructor(x, y, id, r, color) {
+    this.x = x;
+    this.y = y;
+    this.id = id;
+    this.r = r;
+		this.color = color;
+  }
+
+  createCircle() {
+		ctx.beginPath();
+		ctx.arc(this.x,this.y,this.r,0,2*Math.PI);
+		ctx.stroke();
+		ctx.fillStyle = this.color;
+		ctx.fill();
+		ctx.closePath();
+  }
+}
+
+function createButton(context, x,y, value, func, ID) { // OK button
+		if($("#check") && live){
+			$("#check").remove();
+		}
+    var button = document.createElement("input");
+    button.type = "button";
+    button.value = value;
+    button.id = ID;
+    button.style.position = 'fixed';
+    button.style.left = (x + 10) + 'px';
+    button.style.top = (y + 10) + 'px';
+    button.onclick = func;
+    document.body.appendChild(button);
+}
+
+function addInput(x, y) {
+
+		if($("#number")){
+			$("#number").remove()
+		}
+    var input = document.createElement('input');
+
+    input.type = 'text';
+    input.id = 'number';
+    input.style.position = 'fixed';
+    input.style.left = (x + 10) + 'px';
+    input.style.top = (y + 10) + 'px';
+    input.style.width = widthInput + 'px';
+    input.style.height = heightInput + 'px';
+		input.onkeypress = function(){return isNumberKey(event)};
+    document.body.appendChild(input);
+		document.getElementById("number").value = colShapes; //zmen pocet vyfarbenych v inpute
+		input.focus();
+    hasInput = true;
+
+}
+function isNumberKey(evt){ // only numbers in input
+    var charCode = (evt.which) ? evt.which : event.keyCode
+    if (charCode > 31 && (charCode < 48 || charCode > 57))
+        return false;
+    return true;
+}
+
+function addText(context, text, x, y, maxWidth, lineHeight) {
+	var words = text.split(' ');
+	var line = '';
+	var rowNumber = 1;
+	ctx.font = '12pt Calibri';
+	ctx.fillStyle = '#333';
+	for(var n = 0; n < words.length; n++) {
+	  var testLine = line + words[n] + ' ';
+	  var metrics = context.measureText(testLine);
+	  var testWidth = metrics.width;
+	  if (testWidth > maxWidth && n > 0 || words[n] == "\n") {
+	    context.fillText(line, x, y);
+	    line = words[n] + ' ';
+	    y += lineHeight;
+	    rowNumber++;
+	  }
+	  else {
+	    line = testLine.trim() + ' ';
+	  }
+	}
+
+	context.fillText(line, x, y);
+	addInput(5, rowNumber*lineHeight); // prida input
+	createButton(ctx,widthInput + 15, rowNumber*lineHeight,"OK?", check, "check");
+}
+
+function generateText(shape){
+	switch(shape) {
+    case 'circle':
+   		 text = "Koľko najviac rôznych lôpt vieš vytvoriť tak, aby ani jedna nebola vyfarbená rovnako ako ostatné? \n Použi všetky farby na palete vpravo.";
+        break;
+    case 'house':
+   		 text = "Koľko najviac rôznych domčekov vieš vytvoriť tak, aby ani jeden nebol vyfarbený rovnako ako ostatné? \n Použi všetky farby na palete vpravo.";
+        break;
+    case 'flag':
+   		 text = "Koľko najviac rôznych vlajok vieš vytvoriť tak, aby ani jedna nebola vyfarbená rovnako ako ostatné? \n Použi všetky farby na palete vpravo.";
+        break;
+    default:
+        break;
+	}
+}
+
+function check(){
+	progress++;
+	if(progress < levels.length){
+		ctx.font = '12pt Calibri';
+		ctx.fillStyle = '#333';
+		shapes = [];
+		ctx.clearRect(0, 0, c.width, c.height);
+		ctx.beginPath();
+		start();
+	}
+}
+
+function start(){
+	generateText(levels[progress][0]);
+	addText(ctx, text, xText, yText, maxWidth, lineHeight);
+	let textHeight = $("#number").position().top;
+	switch(levels[progress][0]) {
+	    case 'circle':
+	    	shape = levels[progress][0];
+	        var circle = new Circle(45, textHeight+75 , id, 40, "#FFFFFF");
+	        shapes.push(circle)
+					circle.createCircle();
+	        break;
+	    case 'house':
+	        break;
+	    case 'flag':
+	        break;
+	    default:
+	        break;
+	}
+}
+
+start();
+</script>
+
+</body>
+</html>
