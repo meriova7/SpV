@@ -45,6 +45,49 @@ class Circle {
   }
 }
 
+class Rectangle {
+  constructor(x, y, width, height, color) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+		this.color = color;
+  }
+
+  createRectangle() {
+		ctx.beginPath();
+		ctx.rect(this.x, this.y, this.width, this.height);
+		ctx.fillStyle = this.color;
+		ctx.fill();
+		ctx.stroke();
+		ctx.closePath();
+	 }
+}
+
+class Triangle {
+  constructor(x1, y1, x2, y2, x3, y3, color) {
+    this.x1 = x1;
+    this.y1 = y1;
+    this.x2 = x2;
+    this.y2 = y2;
+    this.x3 = x3;
+    this.y3 = y3;
+		this.color = color;
+  }
+
+  createTriangle() {
+	ctx.beginPath();
+	ctx.moveTo(this.x1, this.y1);
+	ctx.lineTo(this.x2, this.y2);
+	ctx.lineTo(this.x3, this.y3);
+	ctx.fillStyle = this.color;
+	ctx.fill();
+	ctx.closePath();
+	ctx.stroke();
+	ctx.closePath();
+  }
+}
+
 function createButton(context, x,y, value, func, ID) { // OK button
 		if($("#check") && live){
 			$("#check").remove();
@@ -154,12 +197,29 @@ function start(){
 					circle.createCircle();
 	        break;
 	    case 'house':
+	  			shape = levels[progress][0];
+		  		var trian = new Triangle(60, textHeight+25, 12, 123, 110, 123,"#FFFFFF");
+		  		trian.createTriangle();
+
+		  		var rect = new Rectangle(15, textHeight+65, 90,70, "#FFFFFF");
+		  		rect.createRectangle();
+		  		shapes[shapes.length] = [trian, rect];
 	        break;
 	    case 'flag':
+	    	shape = levels[progress][0];
+				var rect1 = new Rectangle(5, textHeight+35, 90,20, "#FFFFFF");
+	  		rect1.createRectangle();
+	  		var rect2 = new Rectangle(5, textHeight+55, 90,20, "#FFFFFF");
+	  		rect2.createRectangle();
+	  		var rect3 = new Rectangle(5, textHeight+75, 90,20, "#FFFFFF");
+	  		rect3.createRectangle();
+	  		shapes[shapes.length] = [rect1, rect2, rect3];
+	  		id++;
 	        break;
 	    default:
 	        break;
 	}
+	live = true;
 }
 
 start();
