@@ -130,6 +130,301 @@ function isNumberKey(evt){ // only numbers in input
         return false;
     return true;
 }
+document.body.addEventListener('mousedown', function (e){ // remove function
+	var mouseX = e.clientX;
+	var mouseY = e.clientY;
+
+	if(e.button === 2){
+		if(shapes.length > 1){
+			switch(shape) {
+			    case 'circle':
+			    	removeCircle(mouseX, mouseY);
+			        break;
+			    case 'house':
+			    	removeHouse(mouseX, mouseY);
+			        break;
+			    case 'flag':
+			    	removeFlag(mouseX, mouseY);
+			        break;
+			    default:
+			        break;
+			}
+		}
+  }
+	else if(e.button == 0){
+		switch(shape) {
+				case 'circle':
+					var odX = addButt.x - addButt.r;
+					var doX = addButt.x + addButt.r;
+					var odY = addButt.y - addButt.r;
+					var doY = addButt.y + addButt.r;
+						break;
+				case 'house':
+						var odX = addButt[0].x;
+						var doX = addButt[0].x + addButt[0].width;
+						var odY = addButt[0].y;
+						var doY = addButt[0].y + addButt[0].height;
+						var planeAB = (addButt[1].x1-mouseX)*(addButt[1].y2-mouseY)-(addButt[1].x2-mouseX)*(addButt[1].y1-mouseY);
+						var planeBC = (addButt[1].x2-mouseX)*(addButt[1].y3-mouseY)-(addButt[1].x3 - mouseX)*(addButt[1].y2-mouseY);
+						var planeCA = (addButt[1].x3-mouseX)*(addButt[1].y1-mouseY)-(addButt[1].x1 - mouseX)*(addButt[1].y3-mouseY);
+						var inside = (Math.sign(planeAB)==Math.sign(planeBC) && Math.sign(planeBC)==Math.sign(planeCA)) ; // ci som klikol do troj.
+						break;
+				case 'flag':
+					var odX = addButt.x;
+					var doX = addButt.x + addButt.width;
+					var odY = addButt.y;
+					var doY = addButt.y + (addButt.height*3);
+						break;
+				default:
+						break;
+		}
+		if(mouseX >= odX && mouseX <= doX && mouseX >= odX && mouseY <= doY && mouseY >= odY && mouseY <= doY || inside){
+			addNext();
+		}else{ // vyfarbovanie
+			switch(shape) {
+					case 'circle':
+						colorCircle(mouseX, mouseY);
+							break;
+					case 'house':
+						colorHouse(mouseX, mouseY);
+							break;
+					case 'flag':
+						colorFlag(mouseX, mouseY);
+							break;
+					default:
+							break;
+			}
+		}
+	}
+}, false);
+
+function colorCircle(mouseX, mouseY){
+	for(var i = 0; i < shapes.length; i++){
+		var odX = shapes[i].x - shapes[i].r;
+		var doX = shapes[i].x + shapes[i].r;
+		var odY = shapes[i].y - shapes[i].r;
+		var doY = shapes[i].y + shapes[i].r;
+		if(mouseX >= odX && mouseX <= doX && mouseX >= odX && mouseY <= doY && mouseY >= odY && mouseY <= doY){
+			shapes[i].color = color;
+			break;
+		}
+	}
+	ctx.font = '12pt Calibri';
+	ctx.fillStyle = '#333';
+	colShapes = 0;
+	for(var i = 0; i < shapes.length; i++){
+		shapes[i].createCircle();
+		if(shapes[i].color != "#FFFFFF"){
+			colShapes++;
+		}
+	}
+	document.getElementById("number").value = colShapes; //zmen pocet vyfarbenych v inpute
+}
+
+function colorFlag(mouseX, mouseY) {
+	for(var i = 0; i < shapes.length; i++){
+		for(var j = 0; j < shapes[i].length; j++){
+			var odX = shapes[i][j].x;
+			var doX = shapes[i][j].x + shapes[i][j].width;
+			var odY = shapes[i][j].y;
+			var doY = shapes[i][j].y + shapes[i][0].height;
+			if(mouseX >= odX && mouseX <= doX && mouseX >= odX && mouseY <= doY && mouseY >= odY && mouseY <= doY){
+				shapes[i][j].color = color;
+				break;
+			}
+		}
+	}
+	ctx.font = '12pt Calibri';
+	ctx.fillStyle = '#333';
+	colShapes = 0;
+	var pocZafarbenych = 0;
+	for(var i = 0; i < shapes.length; i++){
+		for(var j = 0; j < shapes[i].length; j++){
+			shapes[i][j].createRectangle();
+			if(shapes[i][j].color != "#FFFFFF"){
+				pocZafarbenych++;
+			}
+		}
+		if(pocZafarbenych == 3){
+			colShapes++;
+		}
+		pocZafarbenych = 0;
+	}
+	document.getElementById("number").value = colShapes; //zmen pocet vyfarbenych v inpute
+}
+
+function colorHouse(mouseX, mouseY){
+	for(var i = 0; i < shapes.length; i++){
+		var odX = shapes[i][1].x;
+		var doX = shapes[i][1].x + shapes[i][1].width;
+		var odY = shapes[i][1].y;
+		var doY = shapes[i][1].y + shapes[i][1].height;
+		var planeAB = (shapes[i][0].x1-mouseX)*(shapes[i][0].y2-mouseY)-(shapes[i][0].x2-mouseX)*(shapes[i][0].y1-mouseY);
+		var planeBC = (shapes[i][0].x2-mouseX)*(shapes[i][0].y3-mouseY)-(shapes[i][0].x3 - mouseX)*(shapes[i][0].y2-mouseY);
+		var planeCA = (shapes[i][0].x3-mouseX)*(shapes[i][0].y1-mouseY)-(shapes[i][0].x1 - mouseX)*(shapes[i][0].y3-mouseY);
+		var inside = (Math.sign(planeAB)==Math.sign(planeBC) && Math.sign(planeBC)==Math.sign(planeCA)) ; // ci som klikol do troj.
+
+		if(mouseX >= odX && mouseX <= doX && mouseX >= odX && mouseY <= doY && mouseY >= odY && mouseY <= doY){
+			shapes[i][1].color = color;
+			break;
+		}
+		if(inside){
+			shapes[i][0].color = color;
+			break;
+		}
+	}
+
+	ctx.font = '12pt Calibri';
+	ctx.fillStyle = '#333';
+	colShapes = 0;
+	var pocZafarbenych = 0;
+	for(var i = 0; i < shapes.length; i++){
+		if(shapes[i][0].color != "#FFFFFF" && shapes[i][1].color != "#FFFFFF"){
+			colShapes++;
+		}
+		shapes[i][1].createRectangle();
+		shapes[i][0].createTriangle();
+	}
+	document.getElementById("number").value = colShapes; //zmen pocet vyfarbenych v inpute
+}
+
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+}, false);
+
+function removeCircle(mouseX, mouseY){
+	for(var i = 0; i < shapes.length; i++){
+		var odX = shapes[i].x - shapes[i].r;
+		var doX = shapes[i].x + shapes[i].r;
+		var odY = shapes[i].y - shapes[i].r;
+		var doY = shapes[i].y + shapes[i].r;
+		if(mouseX >= odX && mouseX <= doX && mouseX >= odX && mouseY <= doY && mouseY >= odY && mouseY <= doY){
+			s = shapes[i];
+			replaceCircle(i,s);
+			shapes.splice(i,1);
+			break;
+		}
+	}
+
+	ctx.clearRect(0, 0, c.width, c.height);
+	addText(ctx, text, xText, yText, maxWidth, lineHeight);
+	colShapes = 0;
+	for(var i = 0; i < shapes.length; i++){
+		shapes[i].createCircle();
+		if(shapes[i].color != "#FFFFFF"){
+			colShapes++;
+		}
+	}
+	document.getElementById("number").value = colShapes; //zmen pocet vyfarbenych v inpute
+	addButton();
+}
+
+function replaceCircle(ind, s) {
+	for(var i = ind; i < shapes.length; i++){
+		if(i+1 < shapes.length){
+			var novy = new Circle(shapes[i+1].x, shapes[i+1].y , shapes[i+1].id, shapes[i+1].r);
+			shapes[i+1].x = s.x;
+			shapes[i+1].y = s.y;
+			s = novy;
+		}
+	}
+}
+
+function removeFlag(mouseX, mouseY){
+	for(var i = 0; i < shapes.length; i++){
+		var odX = shapes[i][0].x;
+		var doX = shapes[i][0].x + shapes[i][0].width;
+		var odY = shapes[i][0].y;
+		var doY = shapes[i][0].y + (shapes[i][0].height*3);
+		if(mouseX >= odX && mouseX <= doX && mouseX >= odX && mouseY <= doY && mouseY >= odY && mouseY <= doY){
+			replaceFlag(i,shapes[i]);
+			shapes.splice(i,1);
+			break;
+		}
+	}
+
+	ctx.clearRect(0, 0, c.width, c.height);
+	addText(ctx, text, xText, yText, maxWidth, lineHeight);
+	ctx.beginPath();
+	colShapes = 0;
+	var pocZafarbenych = 0;
+	for(var i = 0; i < shapes.length; i++){
+		for(var j = 0; j < shapes[i].length; j++){
+			shapes[i][j].createRectangle();
+			if(shapes[i][j].color != "#FFFFFF"){
+				pocZafarbenych++;
+			}
+		}
+		if(pocZafarbenych == 3){
+			colShapes++;
+		}
+		pocZafarbenych = 0;
+	}
+	document.getElementById("number").value = colShapes; //zmen pocet vyfarbenych v inpute
+	addButton();
+}
+
+function replaceFlag(ind, s) {
+	for(var i = ind; i < shapes.length; i++){
+		if(i+1 < shapes.length){
+			var rect1 = new Rectangle(shapes[i+1][0].x, shapes[i+1][0].y, shapes[i+1][0].width, shapes[i+1][0].height, shapes[i+1][0].color);
+			var rect2 = new Rectangle(shapes[i+1][1].x, shapes[i+1][1].y, shapes[i+1][1].width, shapes[i+1][1].height, shapes[i+1][1].color);
+			var rect3 = new Rectangle(shapes[i+1][2].x, shapes[i+1][2].y, shapes[i+1][2].width, shapes[i+1][2].height, shapes[i+1][2].color);
+			shapes[i+1][0] = s[0];
+			shapes[i+1][1] = s[1];
+			shapes[i+1][2] = s[2];
+			shapes[i+1][0].color = rect1.color;
+			shapes[i+1][1].color = rect2.color;
+			shapes[i+1][2].color = rect3.color;
+			s = [rect1, rect2, rect3];
+		}
+	}
+}
+
+function removeHouse(mouseX, mouseY){
+	for(var i = 0; i < shapes.length; i++){
+		var odX = shapes[i][1].x;
+		var doX = shapes[i][1].x + shapes[i][1].width;
+		var odY = shapes[i][1].y;
+		var doY = shapes[i][1].y + shapes[i][1].height;
+		var planeAB = (shapes[i][0].x1-mouseX)*(shapes[i][0].y2-mouseY)-(shapes[i][0].x2-mouseX)*(shapes[i][0].y1-mouseY);
+		var planeBC = (shapes[i][0].x2-mouseX)*(shapes[i][0].y3-mouseY)-(shapes[i][0].x3 - mouseX)*(shapes[i][0].y2-mouseY);
+		var planeCA = (shapes[i][0].x3-mouseX)*(shapes[i][0].y1-mouseY)-(shapes[i][0].x1 - mouseX)*(shapes[i][0].y3-mouseY);
+		var inside = (Math.sign(planeAB)==Math.sign(planeBC) && Math.sign(planeBC)==Math.sign(planeCA)) ; // ci som klikol do troj.
+
+		if(mouseX >= odX && mouseX <= doX && mouseX >= odX && mouseY <= doY && mouseY >= odY && mouseY <= doY || inside){
+			replaceHouse(i,shapes[i]);
+			shapes.splice(i,1);
+			break;
+		}
+	}
+	ctx.font = '12pt Calibri';
+	ctx.fillStyle = '#333';
+	ctx.clearRect(0, 0, c.width, c.height);
+	addText(ctx, text, xText, yText, maxWidth, lineHeight);
+	ctx.beginPath();
+	for(var i = 0; i < shapes.length; i++){
+		shapes[i][1].createRectangle();
+		shapes[i][0].createTriangle();
+	}
+
+	addButtHouse();
+}
+
+function replaceHouse(ind, s) {
+	for(var i = ind; i < shapes.length; i++){
+		if(i+1 < shapes.length){
+			var trian = new Triangle(shapes[i+1][0].x1, shapes[i+1][0].y1, shapes[i+1][0].x2, shapes[i+1][0].y2, shapes[i+1][0].x3, shapes[i+1][0].y3,shapes[i+1][0].color);
+			var rect = new Rectangle(shapes[i+1][1].x, shapes[i+1][1].y, shapes[i+1][1].width, shapes[i+1][1].height, shapes[i+1][1].color);
+			shapes[i+1][1] = s[1];
+			shapes[i+1][0] = s[0];
+			shapes[i+1][1].color = rect.color;
+			shapes[i+1][0].color = trian.color;
+			s = [trian, rect];
+		}
+	}
+}
+
 
 function addText(context, text, x, y, maxWidth, lineHeight) {
 	var words = text.split(' ');
