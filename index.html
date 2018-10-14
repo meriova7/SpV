@@ -157,6 +157,312 @@ function addText(context, text, x, y, maxWidth, lineHeight) {
 	createButton(ctx,widthInput + 15, rowNumber*lineHeight,"OK?", check, "check");
 }
 
+function addButton(){
+	switch(shape) {
+	    case 'circle':
+	    	addButtCircle();
+	        break;
+	    case 'house':
+	    	addButtHouse();
+	        break;
+	    case 'flag':
+	    	addButtFlag();
+	        break;
+	    default:
+	        break;
+	}
+}
+
+function addButtCircle(){
+	let last = shapes[shapes.length - 1];
+	let first = shapes[0];
+
+	var xPos = last.x  + (last.r*2) + 10; // nova xpozicia noveho utvaru
+	var yPos = last.y + (last.r*2) + 10; // nova ypozicia noveho utvaru
+
+	if(xPos + (last.r*2) + 10 < c.width - 100){ // ak je nova x-ova pozicia mensia ako sirka canvasu
+		let circle = new Circle(xPos, last.y, id, last.r, "#e0e0d1");
+			circle.createCircle();
+			crossButt(circle.x, circle.y);
+			addButt = circle;
+		}else{
+			let circle = new Circle(first.x, yPos, id, last.r, "#e0e0d1");
+				circle.createCircle();
+				crossButt(circle.x, circle.y);
+				addButt = circle;
+		}
+}
+
+function addButtFlag(){
+	let last = shapes[shapes.length - 1];
+	let first = shapes[0];
+	let rectX = last[0].x + 20 + last[0].width
+	let rectY = last[0].y + last[0].height
+
+	if(rectX + 20 + last[1].width < c.width - 100){
+			var rect = new Rectangle(rectX, last[0].y, last[0].width,last[0].height * 3, "#e0e0d1");
+			rect.createRectangle();
+			crossButt(rectX + last[0].width / 2 , rectY + last[0].height / 3);
+			addButt = rect;
+		}else{
+				var rect = new Rectangle(first[0].x, rectY + first[2].height * 2 + 20, last[0].width,last[0].height * 3, "#e0e0d1");
+				rect.createRectangle();
+				crossButt(first[0].x + last[0].width / 2 , rectY + last[0].height * 3 + 30);
+				addButt = rect;
+		}
+}
+
+function addButtHouse(){
+	let last = shapes[shapes.length - 1];
+	let first = shapes[0];
+	let rectX = last[1].x + 20 + last[1].width
+	let rectY = last[1].y + last[1].height
+	if(rectX + 20 + last[1].width < c.width - 100){
+		var trian = new Triangle(last[0].x1 + last[1].width + 20, last[0].y1, last[0].x2 + last[1].width +20, last[0].y2, last[0].x3 + last[1].width + 20, last[0].y3,"#e0e0d1");
+		trian.createTriangle();
+
+		var rect = new Rectangle(last[1].x + 20 + last[1].width, last[1].y, last[1].width,last[1].height, "#e0e0d1");
+		rect.createRectangle();
+		crossButt(rectX + last[1].width / 2 , rectY - last[1].height/2);
+		addButt = [rect, trian];
+	}
+	else{
+		if(rectY + 20 + last[1].height < c.height){
+			var trian = new Triangle(first[0].x1, last[0].y1 + last[1].height*2, first[0].x2, last[0].y2 + last[1].height*2, first[0].x3, last[0].y3 + last[1].height*2,"#e0e0d1");
+			trian.createTriangle();
+
+			var rect = new Rectangle(first[1].x, rectY + first[1].height, first[1].width,first[1].height, "#e0e0d1");
+			rect.createRectangle();
+			crossButt(first[1].x + last[1].width / 2 , rectY + last[1].height + 35);
+			addButt = [rect, trian];
+		}
+	}
+}
+
+function crossButt(x, y) {
+    ctx.beginPath();
+
+    ctx.moveTo(x - 20, y - 20);
+    ctx.lineTo(x + 20, y + 20);
+    ctx.stroke();
+
+    ctx.moveTo(x + 20, y - 20);
+    ctx.lineTo(x - 20, y + 20);
+    ctx.stroke();
+
+		ctx.closePath();
+}
+
+function addNext(){
+	switch(shape) {
+	    case 'circle':
+	    	addNextCircle();
+	        break;
+	    case 'house':
+	    	addNextHouse();
+	        break;
+	    case 'flag':
+	    	addNextFlag();
+	        break;
+	    default:
+	        break;
+	}
+}
+
+function addNextCircle(){
+	let last = shapes[shapes.length - 1];
+	let first = shapes[0];
+	var xPos = last.x  + (last.r*2) + 10; // nova xpozicia noveho utvaru
+	var yPos = last.y + (last.r*2) + 10; // nova ypozicia noveho utvaru
+
+	if(xPos + (last.r*2) + 10 < c.width - 100){ // ak je nova x-ova pozicia mensia ako sirka canvasu
+		let circle = new Circle(xPos, last.y, id, last.r, "#FFFFFF");
+		id++;
+	    shapes.push(circle)
+		circle.createCircle();
+		addButton();
+	}
+	else{
+		if(yPos + (last.r*2) + 10 < c.height){
+			let circle = new Circle(first.x, yPos, id, last.r, "#FFFFFF");
+		  shapes.push(circle)
+			circle.createCircle();
+			addButton();
+		}
+	}
+}
+
+function addNextHouse(){
+	let last = shapes[shapes.length - 1];
+	let first = shapes[0];
+	let rectX = last[1].x + 20 + last[1].width
+	let rectY = last[1].y + last[1].height
+
+	if(rectX + 20 + last[1].width < c.width - 100){
+		var trian = new Triangle(last[0].x1 + last[1].width + 20, last[0].y1, last[0].x2 + last[1].width +20, last[0].y2, last[0].x3 + last[1].width + 20, last[0].y3,"#FFFFFF");
+		trian.createTriangle();
+
+		var rect = new Rectangle(last[1].x + 20 + last[1].width, last[1].y, last[1].width,last[1].height, "#FFFFFF");
+		rect.createRectangle();
+		shapes[shapes.length] = [trian, rect];
+	}
+	else{
+		if(rectY + 20 + last[1].height + last[1].height < c.height){
+			var trian = new Triangle(first[0].x1, last[0].y1 + last[1].height*2, first[0].x2, last[0].y2 + last[1].height*2, first[0].x3, last[0].y3 + last[1].height*2,"#FFFFFF");
+			trian.createTriangle();
+
+			var rect = new Rectangle(first[1].x, rectY + first[1].height, first[1].width,first[1].height, "#FFFFFF");
+			rect.createRectangle();
+			shapes[shapes.length] = [trian, rect];
+		}
+	}
+	addButtHouse();
+}
+
+function addNextFlag(){
+	let last = shapes[shapes.length - 1];
+	let first = shapes[0];
+	let rectX = last[0].x + 20 + last[0].width
+	let rectY = last[0].y + last[0].height
+
+	if(rectX + 20 + last[1].width < c.width - 100){
+		var rect1 = new Rectangle(last[0].x + last[0].width + 20, last[0].y, last[0].width,last[0].height, "#FFFFFF");
+		rect1.createRectangle();
+		var rect2 = new Rectangle(last[1].x + last[1].width + 20, last[1].y, last[1].width,last[1].height, "#FFFFFF");
+		rect2.createRectangle();
+		var rect3 = new Rectangle(last[2].x + last[2].width + 20, last[2].y, last[2].width,last[2].height, "#FFFFFF");
+		rect3.createRectangle();
+		shapes[shapes.length] = [rect1, rect2, rect3];
+		addButton();
+	}else{
+		if(last[2].y + last[0].height + 40 + last[0].height*3 < c.height){
+			var rect1 = new Rectangle(first[0].x, rectY + first[2].height * 2 + 20, first[0].width, first[0].height, "#FFFFFF");
+			rect1.createRectangle();
+			var rect2 = new Rectangle(rect1.x, rect1.y + rect1.height, rect1.width, rect1.height, "#FFFFFF");
+			rect2.createRectangle();
+			var rect3 = new Rectangle(rect2.x, rect2.y + rect2.height, rect2.width, rect2.height, "#FFFFFF");
+			rect3.createRectangle();
+			shapes[shapes.length] = [rect1, rect2, rect3];
+			addButton();
+		}
+	}
+}
+
+document.body.addEventListener('mousedown', function (e){ // remove function
+	var mouseX = e.clientX;
+	var mouseY = e.clientY;
+	if(e.button == 0){
+			switch(shape) {
+					case 'circle':
+						var odX = addButt.x - addButt.r;
+						var doX = addButt.x + addButt.r;
+						var odY = addButt.y - addButt.r;
+						var doY = addButt.y + addButt.r;
+							break;
+					case 'house':
+							var odX = addButt[0].x;
+							var doX = addButt[0].x + addButt[0].width;
+							var odY = addButt[0].y;
+							var doY = addButt[0].y + addButt[0].height;
+							var planeAB = (addButt[1].x1-mouseX)*(addButt[1].y2-mouseY)-(addButt[1].x2-mouseX)*(addButt[1].y1-mouseY);
+							var planeBC = (addButt[1].x2-mouseX)*(addButt[1].y3-mouseY)-(addButt[1].x3 - mouseX)*(addButt[1].y2-mouseY);
+							var planeCA = (addButt[1].x3-mouseX)*(addButt[1].y1-mouseY)-(addButt[1].x1 - mouseX)*(addButt[1].y3-mouseY);
+							var inside = (Math.sign(planeAB)==Math.sign(planeBC) && Math.sign(planeBC)==Math.sign(planeCA)) ; // ci som klikol do troj.
+							break;
+					case 'flag':
+						var odX = addButt.x;
+						var doX = addButt.x + addButt.width;
+						var odY = addButt.y;
+						var doY = addButt.y + (addButt.height*3);
+							break;
+					default:
+							break;
+			}
+			if(mouseX >= odX && mouseX <= doX && mouseX >= odX && mouseY <= doY && mouseY >= odY && mouseY <= doY || inside){
+				addNext();
+			}
+		}
+}, false);
+
+function createPallete(){
+
+	var interval = levels[progress][1].split(",")
+	let number = parseInt(interval[Math.floor(Math.random() * interval.length)]);
+	let height = 0;
+	var yColors = c.height / 2 - 100;
+
+	for(var i = 0; i < number; i++){
+		var div = document.createElement('input');
+		let col = getRandomColor() + "";
+
+		div.id = 'color' + i;
+		div.type = "text";
+		if(i == 0){
+			color = col;
+			div.style.borderColor = "black";
+			div.style.borderWidth = "medium";
+		}
+		div.style.color = col;
+		div.value = col;
+		div.style.position = 'fixed';
+		div.style.left = (c.width - 100) + 'px';
+		div.style.top =  (yColors + height) + 'px';
+		div.style.width = widthInput + 'px';
+		div.style.height = heightInput + 'px';
+		div.style.backgroundColor = col;
+		div.onclick = function() { pickColor(col, this.id, number) };
+		document.body.appendChild(div);
+		height += 25;
+	}
+
+	var guma = document.createElement('input');
+
+	guma.id = 'color' + i;
+	guma.type = 'image';
+	guma.src = 'images/rubber.png';
+	guma.value = "#FFFFFF"
+	guma.style.position = 'fixed';
+	guma.style.left = (c.width - 90) + 'px';
+	guma.style.top =  (yColors + height) + 'px';
+	guma.style.width = 35 + 'px';
+	guma.style.height = 35 + 'px';
+	guma.style.backgroundColor = "white";
+	guma.onclick = function() { pickColor(guma.value, this.id, number) };
+	document.body.appendChild(guma);
+}
+
+function getRandomColor() {
+  var letters = '0123456789ABCDEF';
+  var color = '#';
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+function pickColor(col, id, number) {
+	color = col;
+	if(document.getElementById(id).style.borderColor != "black"){
+		document.getElementById(id).style.borderColor = "black";
+		document.getElementById(id).style.borderWidth = "medium";
+	}
+	changeBorder(id);
+}
+
+function changeBorder(id){
+	$('*[id*=color]:visible').each(function() {
+	    if($(this)[0].id != id){
+				$(this)[0].style.borderColor = "white"
+			}
+	});
+}
+
+function removeAllColors(){
+	$('*[id*=color]:visible').each(function() {
+			this.remove();
+	});
+}
+
 function generateText(shape){
 	switch(shape) {
     case 'circle':
@@ -176,16 +482,21 @@ function generateText(shape){
 function check(){
 	progress++;
 	if(progress < levels.length){
+		colShapes = 0;
+		removeAllColors();
 		ctx.font = '12pt Calibri';
 		ctx.fillStyle = '#333';
 		shapes = [];
+		$("#add").remove(); // remove button
 		ctx.clearRect(0, 0, c.width, c.height);
 		ctx.beginPath();
+		live = false;
 		start();
 	}
 }
 
 function start(){
+	createPallete();
 	generateText(levels[progress][0]);
 	addText(ctx, text, xText, yText, maxWidth, lineHeight);
 	let textHeight = $("#number").position().top;
@@ -195,15 +506,18 @@ function start(){
 	        var circle = new Circle(45, textHeight+75 , id, 40, "#FFFFFF");
 	        shapes.push(circle)
 					circle.createCircle();
+					addButton();
 	        break;
 	    case 'house':
 	  			shape = levels[progress][0];
+					console.log(textHeight)
 		  		var trian = new Triangle(60, textHeight+25, 12, 123, 110, 123,"#FFFFFF");
 		  		trian.createTriangle();
 
 		  		var rect = new Rectangle(15, textHeight+65, 90,70, "#FFFFFF");
 		  		rect.createRectangle();
 		  		shapes[shapes.length] = [trian, rect];
+					addButtHouse();
 	        break;
 	    case 'flag':
 	    	shape = levels[progress][0];
@@ -214,6 +528,7 @@ function start(){
 	  		var rect3 = new Rectangle(5, textHeight+75, 90,20, "#FFFFFF");
 	  		rect3.createRectangle();
 	  		shapes[shapes.length] = [rect1, rect2, rect3];
+				addButtFlag();
 	  		id++;
 	        break;
 	    default:
