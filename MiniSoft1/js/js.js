@@ -1,15 +1,16 @@
 var c = document.getElementById("myCanvas"); // canvas
 var ctx = c.getContext("2d");
+ctx.border = 0;
 var maxWidth = c.width;
 var lineHeight = 25; // velkost riadnu pre Text
 var xText = 5;
-var yText = 20;
-var widthInput = 50; //sirka inputu
-var heightInput = 15; // vyska inputu
+var yText = 80;
+var widthInput = 100; //sirka inputu
+var heightInput = 25; // vyska inputu
 var text = ""; // zadanie
 ctx.font = '12pt Calibri';
 ctx.fillStyle = '#333';
-var levels = [["circle","1,2"], ["circle","3,4"], ["circle","4,6"], ["house","2"], ["house","3"], ["flag","2"], ["flag","3"], ["house","4,5"], ["flag","4,5"]];
+var levels = [["circle","1,2"], ["circle","3,4"], ["circle","4,6"], ["house","2"], ["house","3"], ["flag","2"], ["flag","3"], ["house","4,5"]];
 var progress = 0;
 var shapes = [];
 var shape = "";
@@ -19,10 +20,12 @@ var colShapes = 0; //vyfarbene utvary
 var live = false;
 var addButt = "";
 var result = -1; // vsledok ziaka
+var isCorrect = false;
 var numberColor = 0; // pocet farieb
 var isfirstTime = false; // ci na prvykrat trafil vysledok
 var numFirstTime = 0; // pocet na prvykrat
 var colors = []; // farby v palete;
+var butt = "";
 
 class Circle {
   constructor(x, y, id, r, color) {
@@ -87,18 +90,24 @@ class Triangle {
 }
 
 function createButton(context, x,y, value, func, ID) { // OK button
-		if($("#check") && live){
-			$("#check").remove();
-		}
+    if($("#check") && live){
+        console.log("TI")
+        $("#check").remove();
+    }
     var button = document.createElement("input");
     button.type = "button";
     button.value = value;
+    button.className ="btn btn-primary";
     button.id = ID;
     button.style.position = 'fixed';
     button.style.left = (x + 10) + 'px';
     button.style.top = (y + 10) + 'px';
     button.onclick = func;
     document.body.appendChild(button);
+    
+    
+    $("#"+ID).attr("data-toggle", "modal");
+    $("#"+ID).attr("data-target", "#myModal");
 }
 
 function addInput(x, y) {
@@ -110,11 +119,13 @@ function addInput(x, y) {
 
     input.type = 'text';
     input.id = 'number';
+    input.className = "form-control-lg";
     input.style.position = 'fixed';
     input.style.left = (x + 10) + 'px';
     input.style.top = (y + 10) + 'px';
     input.style.width = widthInput + 'px';
     input.style.height = heightInput + 'px';
+    input.style.textAlign = "center";
 	input.onkeypress = function(){return isNumberKey(event)};
     document.body.appendChild(input);
 	document.getElementById("number").value = colShapes; //zmen pocet vyfarbenych v inpute
@@ -148,16 +159,17 @@ function createPallete(){
 			div.style.borderWidth = "medium";
 		}
 		div.style.color = col;
+    div.className = "form-control"
 		div.value = col;
 		div.style.position = 'fixed';
 		div.style.left = (c.width - 100) + 'px';
 		div.style.top =  (yColors + height) + 'px';
-		div.style.width = widthInput + 'px';
+		div.style.width = 50 + 'px';
 		div.style.height = heightInput + 'px';
 		div.style.backgroundColor = col;
 		div.onclick = function() { pickColor(col, this.id, numberColor) };
 		document.body.appendChild(div);
-		height += 25;
+		height += 30;
 	}
 
 	var guma = document.createElement('input');
@@ -168,7 +180,7 @@ function createPallete(){
 	guma.value = "#FFFFFF"
 	guma.style.position = 'fixed';
 	guma.style.left = (c.width - 90) + 'px';
-	guma.style.top =  (yColors + height) + 'px';
+	guma.style.top =  (yColors + height + 20) + 'px';
 	guma.style.width = 35 + 'px';
 	guma.style.height = 35 + 'px';
 	guma.style.backgroundColor = "white";
@@ -197,7 +209,7 @@ function pickColor(col, id, number) {
 function changeBorder(id){
 	$('*[id*=color]:visible').each(function() {
 	    if($(this)[0].id != id){
-				$(this)[0].style.borderColor = "white"
+                $(this)[0].style.borderColor = "#ced4da"
 			}
 	});
 }
@@ -231,7 +243,7 @@ function addButtCircle(){
 	var xPos = last.x  + (last.r*2) + 10; // nova xpozicia noveho utvaru
 	var yPos = last.y + (last.r*2) + 10; // nova ypozicia noveho utvaru
 
-	if(xPos + (last.r*2) + 10 < c.width - 100){ // ak je nova x-ova pozicia mensia ako sirka canvasu
+	if(xPos + (last.r) + 10 < c.width - 100){ // ak je nova x-ova pozicia mensia ako sirka canvasu
 		let circle = new Circle(xPos, last.y, id, last.r, "#e0e0d1");
 			circle.createCircle();
 			crossButt(circle.x, circle.y);
@@ -301,7 +313,7 @@ function crossButt(x, y) {
     ctx.lineTo(x - 20, y + 20);
     ctx.stroke();
 
-		ctx.closePath();
+    ctx.closePath();
 }
 
 function addNext(){
@@ -326,19 +338,18 @@ function addNextCircle(){
 	var xPos = last.x  + (last.r*2) + 10; // nova xpozicia noveho utvaru
 	var yPos = last.y + (last.r*2) + 10; // nova ypozicia noveho utvaru
 
-	if(xPos + (last.r*2) + 10 < c.width - 100){ // ak je nova x-ova pozicia mensia ako sirka canvasu
+	if(xPos + (last.r) + 10 < c.width - 100){ // ak je nova x-ova pozicia mensia ako sirka canvasu
 		let circle = new Circle(xPos, last.y, id, last.r, "#FFFFFF");
-		id++;
 	    shapes.push(circle)
 		circle.createCircle();
-		addButton();
+         addButton();
 	}
 	else{
-		if(yPos + (last.r*2) < c.height){
+		if(yPos + (last.r) < c.height){
 			let circle = new Circle(first.x, yPos, id, last.r, "#FFFFFF");
 		 	 shapes.push(circle)
 			circle.createCircle();
-			addButton();
+             addButton();
 		}
 	}
 }
@@ -356,7 +367,7 @@ function addNextHouse(){
 		var rect = new Rectangle(last[1].x + 20 + last[1].width, last[1].y, last[1].width,last[1].height, "#FFFFFF");
 		rect.createRectangle();
 		shapes[shapes.length] = [trian, rect];
-		addButton();
+        addButton();
 	}
 	else{
 		if(rectY + 20 + last[1].height + last[1].height < c.height){
@@ -367,7 +378,7 @@ function addNextHouse(){
 			rect.createRectangle();
 			shapes[shapes.length] = [trian, rect];
 			addButton();
-		}
+        }
 	}
 }
 
@@ -560,7 +571,7 @@ function colorHouse(mouseX, mouseY){
 }
 
 document.addEventListener("contextmenu", function (e) {
-    e.preventDefault();
+    //e.preventDefault();
 }, false);
 
 function removeCircle(mouseX, mouseY){
@@ -701,8 +712,8 @@ function addText(context, text, x, y, maxWidth, lineHeight) {
 	var words = text.split(' ');
 	var line = '';
 	var rowNumber = 1;
-	ctx.font = '12pt Calibri';
-	ctx.fillStyle = '#333';
+	ctx.font = '13pt Helvetica Neue';
+	ctx.fillStyle = '#007bff';
 	for(var n = 0; n < words.length; n++) {
 	  var testLine = line + words[n] + ' ';
 	  var metrics = context.measureText(testLine);
@@ -719,8 +730,9 @@ function addText(context, text, x, y, maxWidth, lineHeight) {
 	}
 
 	context.fillText(line, x, y);
-	addInput(5, rowNumber*lineHeight); // prida input
-	createButton(ctx,widthInput + 15, rowNumber*lineHeight,"OK?", check, "check");
+  navWidth = $(".navbar").width();
+  addInput(navWidth/2 + 40, $(".navbar").height()/6); // prida input
+  createButton(ctx,navWidth/2 + 40 + $("#number").width()*2, $("#number").position().top/2 - 10, "Skontrolovať", check, "check");
 }
 
 function generateText(shape){
@@ -740,13 +752,16 @@ function generateText(shape){
 }
 
 function check(){
-	if(checkResult()){		
+	if(checkResult()){
 		displayNumber();
 		progress++;
 		if(progress < levels.length){
 			if(isfirstTime == true){
 				numFirstTime++;
 			}
+            isCorrect = true;
+             $(".modal-title").text('Správna odpoveď');
+            $(".modal-body").text('Tvoja odpoveď je správna. Nasleduje ďaľší level.');
 			colShapes = 0;
 			removeAllColors();
 			ctx.font = '12pt Calibri';
@@ -755,7 +770,7 @@ function check(){
 			$("#add").remove(); // remove button
 			ctx.clearRect(0, 0, c.width, c.height);
 			ctx.beginPath();
-			live = false;
+			//live = false;
 			result = -1;
 			detectChangeInput();
 			colors = [];
@@ -763,22 +778,25 @@ function check(){
 			start();
 		}
 	}else{
+         isCorrect = false;
+         $(".modal-title").text('Nesprávna odpoveď');
+        $(".modal-body").text('Odpoveď nie je správna. Skús opraviť svoju odpoveď.');
 		isfirstTime = -1;
 	}
 }
 
 function detectChangeInput() {
 	$(function() {
-	    $('#number').keyup(function() { 
+	    $('#number').keyup(function() {
 	        let vys = parseInt($(this).val());
-	        if(!isNaN(vys)){   
+	        if(!isNaN(vys)){
 	            result = vys;
-	        } 
+	        }
 	    });
 	});
 }
 
-function isWhiteCircle(farby) { // ak je farba biela 
+function isWhiteCircle(farby) { // ak je farba biela
 	for(var i = 0; i < shapes.length; i++){
 		if(shapes[i].color == "#FFFFFF"){
 			return false;
@@ -788,7 +806,7 @@ function isWhiteCircle(farby) { // ak je farba biela
 	return true;
 }
 
-function isWhiteHouse(farby) { // ak je farba biela 
+function isWhiteHouse(farby) { // ak je farba biela
 	for(var i = 0; i < shapes.length; i++){
 		if(shapes[i][0].color == "#FFFFFF" || shapes[i][1].color == "#FFFFFF"){
 			return false;
@@ -798,7 +816,7 @@ function isWhiteHouse(farby) { // ak je farba biela
 	return true;
 }
 
-function isWhiteFlag(farby) { // ak je farba biela 
+function isWhiteFlag(farby) { // ak je farba biela
 	for(var i = 0; i < shapes.length; i++){
 		farby[i] = [];
 		for(var j = 0; j < shapes[i].length; j++){
@@ -833,7 +851,7 @@ function allCombinations3Arrays() { // vsetky kombinacie farieb pre vlajky
 	     	for(var k = 0; k < colors.length; k++)
 		     {
 		        combos.push([colors[i],colors[j], colors[k]]);
-		     }	        
+		     }
 	     }
 	}
 	return combos;
@@ -862,7 +880,7 @@ function checkResult() {
 	var farby = [];
 
 	if(!isfirstTime){
-		isfirstTime = true;	
+		isfirstTime = true;
 	}
 	switch(shape) {
 	    case 'circle':
@@ -892,7 +910,7 @@ function checkResult() {
 				farby.sort();
 				colors.sort();
 				var is_same = (farby.length == colors.length) && farby.every(function(element, index) {
-				    return element === colors[index]; 
+				    return element === colors[index];
 				});
 				return is_same;
 			}
@@ -904,7 +922,7 @@ function checkResult() {
 				if(combos.length == farby.length){
 					for(var i = 0; i < farby.length; i++){
 						var is_same = (farby[i].length == combos[i].length) && farby[i].every(function(element, index) {
-					   		 return element === combos[i][index]; 
+					   		 return element === combos[i][index];
 						});
 					if(!is_same){
 						return false;
@@ -924,7 +942,7 @@ function checkResult() {
 				if(combos.length == farby.length){
 					for(var i = 0; i < farby.length; i++){
 						var is_same = (farby[i].length == combos[i].length) && farby[i].every(function(element, index) {
-					   		 return element === combos[i][index]; 
+					   		 return element === combos[i][index];
 						});
 					if(!is_same){
 						return false;
@@ -951,7 +969,17 @@ function displayNumber() { // zobrazi pocet spravnych odpovedi
   ctx.fillText(numFirstTime, c.width-90, c.height-50);//Be smarter here to control where text displays
 }
 
+function setNavBar(){
+    $(".navbar").css({position: 'fixed', top: '0px'});
+    $(".navbar").width("100%");
+    $(".footer").css({position: 'relative'});
+}
+
 function start(){
+    c.width = window.innerWidth; // nastavi sirku canvasu
+    setNavBar();
+    $("#pocLev").text(levels.length); //nastavi span maximalny level
+    $("#cLevel").text(progress+1);
 	createPallete();
 	generateText(levels[progress][0]);
 	addText(ctx, text, xText, yText, maxWidth, lineHeight);
@@ -960,28 +988,28 @@ function start(){
 	switch(levels[progress][0]) {
 	    case 'circle':
 	    	shape = levels[progress][0];
-	        var circle = new Circle(45, textHeight+75 , id, 40, "#FFFFFF");
+	        var circle = new Circle(45, textHeight+85 + yText , id, 40, "#FFFFFF");
 	        shapes.push(circle)
 			circle.createCircle();
 			addButton();
 	        break;
 	    case 'house':
   			shape = levels[progress][0];
-	  		var trian = new Triangle(60, textHeight+25, 12, 123, 110, 123,"#FFFFFF");
+	  		var trian = new Triangle(60, textHeight+15+yText, 12, 162, 110, 162,"#FFFFFF");
 	  		trian.createTriangle();
 
-	  		var rect = new Rectangle(15, textHeight+65, 90,70, "#FFFFFF");
+	  		var rect = new Rectangle(15, textHeight+65 + yText, 90,70, "#FFFFFF");
 	  		rect.createRectangle();
 	  		shapes[shapes.length] = [trian, rect];
 			addButtHouse();
 	        break;
 	    case 'flag':
 	    	shape = levels[progress][0];
-			var rect1 = new Rectangle(5, textHeight+35, 90,20, "#FFFFFF");
+			var rect1 = new Rectangle(5, textHeight+35 + yText, 90,20, "#FFFFFF");
 	  		rect1.createRectangle();
-	  		var rect2 = new Rectangle(5, textHeight+55, 90,20, "#FFFFFF");
+	  		var rect2 = new Rectangle(5, textHeight+55 + yText, 90,20, "#FFFFFF");
 	  		rect2.createRectangle();
-	  		var rect3 = new Rectangle(5, textHeight+75, 90,20, "#FFFFFF");
+	  		var rect3 = new Rectangle(5, textHeight+75 + yText, 90,20, "#FFFFFF");
 	  		rect3.createRectangle();
 	  		shapes[shapes.length] = [rect1, rect2, rect3];
 			addButtFlag();

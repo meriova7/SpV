@@ -1,0 +1,14 @@
+.footer {
+    position: absolute !important;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 1rem;
+    background-color: #343a40;
+    text-align: center;
+    height: 40px;
+}
+
+.nav-link{
+    color: white !important;
+}
