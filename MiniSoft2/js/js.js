@@ -178,9 +178,13 @@ function start() {
 
 start();
 
+
+//$("#commands").sortable();
 $("#commands").sortable({
     items: 'li:not(.ui-state-disabled)',
 });
+
+//$("#commands").sortable();
 $("#commands").disableSelection();
 
 $("li").addClass("ui-widget-content");
@@ -380,7 +384,7 @@ function myMove() {
 }
 
 document.addEventListener("contextmenu", function (e) {
-  //  e.preventDefault();
+    e.preventDefault();
 }, false);
 
 function restart() {
