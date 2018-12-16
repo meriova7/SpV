@@ -11,53 +11,54 @@ var result = 0;
 var play = false;
 var count = 0;
 
-function drawScene(currentLevel) {
-	curr = levels[currentLevel]; // aktualny level
-	countHill = curr[0]; // pocet kopcov v leveli
-	document.getElementById("carrotsNum").textContent = numPickCarrots; // nastavi na zaciatku pocet vyzbieranych mrkiev na 0
+function drawScene(currentLevel, pomScene) {
+    if(!pomScene) {
+        curr = levels[currentLevel]; // aktualny level
+        countHill = curr[0]; // pocet kopcov v leveli
+        document.getElementById("carrotsNum").textContent = numPickCarrots; // nastavi na zaciatku pocet vyzbieranych mrkiev na 0
 
-	createImage(0, "krok", "actions"); // vytvori obrazok s krokom dopredu
+        createImage(0, "krok", "actions"); // vytvori obrazok s krokom dopredu
 
-    for(var i = 0; i < countHill; i++){
-        scene[i] = 0;
-    }
-
-	if(curr[1].length != 0) { // ak su pevne udane mrkvy s poctom
-        for (var i = 0; i < curr[1].length; i++) {
-            data = curr[1][i];
-            var key = Object.keys(data)[0];
-            var value = data[key];
-			scene[key-1] = value;
-
-            if(value ==1){
-                oneCarrot = true;
-            }
-
-			if(value == 2){
-				twoCarrots = true;
-			}
+        for(var i = 0; i < countHill; i++){
+            scene[i] = 0;
         }
-    }else{
-        var data = curr[2];
-      	if(data.split(",").length > 1){ // ak
-			var split = data.split(",");
-            randomNumbers = Array.from(Array( countHill-1), (_,x) => x+1);
-			for(var i = 0; i < split.length; i++){
-				var coordin = split[i].split(':');
-				for(var j = 0; j< coordin[0]; j++){
-				    var x = getRandomNumber();
-                    scene[x] = coordin[1];
-                }
-				if(coordin[1]==2){
-                    twoCarrots = true;
-				}
-				if(coordin[1]==1){
+
+        if(curr[1].length != 0) { // ak su pevne udane mrkvy s poctom
+            for (var i = 0; i < curr[1].length; i++) {
+                data = curr[1][i];
+                var key = Object.keys(data)[0];
+                var value = data[key];
+                scene[key-1] = value;
+
+                if(value ==1){
                     oneCarrot = true;
-				}
-			}
-		}else if(data.split("-").length > 1) {
-				split = data.split(":");
-				var numbers = split[0].split("-");
+                }
+
+                if(value == 2){
+                    twoCarrots = true;
+                }
+            }
+        }else{
+            var data = curr[2];
+            if(data.split(",").length > 1){ // ak
+                var split = data.split(",");
+                randomNumbers = Array.from(Array( countHill-1), (_,x) => x+1);
+                for(var i = 0; i < split.length; i++){
+                    var coordin = split[i].split(':');
+                    for(var j = 0; j< coordin[0]; j++){
+                        var x = getRandomNumber();
+                        scene[x] = coordin[1];
+                    }
+                    if(coordin[1]==2){
+                        twoCarrots = true;
+                    }
+                    if(coordin[1]==1){
+                        oneCarrot = true;
+                    }
+                }
+            }else if(data.split("-").length > 1) {
+                split = data.split(":");
+                var numbers = split[0].split("-");
                 randomNumbers = Array.from(Array( countHill-1), (_,x) => x+1);
                 var random = Math.floor(Math.random() * (parseInt(numbers[1]) - parseInt(numbers[0]) + 1)) + parseInt(numbers[0]);
                 for(var j = 0; j< random; j++)
@@ -73,9 +74,9 @@ function drawScene(currentLevel) {
                 }
             }
             else {
-            	split = data.split(":");
+                split = data.split(":");
                 randomNumbers = Array.from(Array( countHill-1), (_,x) => x+1);
-            	for(var i = 0; i < split[0]; i++){
+                for(var i = 0; i < split[0]; i++){
                     var x = getRandomNumber();
                     scene[x] = split[1];
                     if(split[1]==2){
@@ -84,16 +85,21 @@ function drawScene(currentLevel) {
                     if(split[1]==1){
                         oneCarrot = true;
                     }
-				}
-			}
-	}
+                }
+            }
+        }
 
-    if(oneCarrot) {
-        createImage(1, "mrkva", "actions");
+
+        if(oneCarrot) {
+            createImage(1, "mrkva", "actions");
+        }
+        if(twoCarrots){
+            createImage(2, "mrkva", "actions");
+        }
+
+    }else{
+        scene = pomScene;
     }
-	if(twoCarrots){
-    	createImage(2, "mrkva", "actions");
-	}
     createImage(null, "car", "car");
     for (var i = 0; i < countHill; i++) {
 		if(scene[i] == 0){
@@ -136,9 +142,9 @@ function createImage(number, image, appendTo, id){
         }
 	}
     else if(image == "kopec"){
-        elem.setAttribute("src", "images/kopcek.png");
+        elem.setAttribute("src", "images/kopcek_bez_mrkvy.png");
         elem.setAttribute("height", "75");
-        elem.setAttribute("width", "75");
+        elem.setAttribute("width", "85");
         elem.id = id;
     }
     else if(image == "mrkvicka"){
@@ -172,7 +178,9 @@ function start() {
 
 start();
 
-$("#commands").sortable();
+$("#commands").sortable({
+    items: 'li:not(.ui-state-disabled)',
+});
 $("#commands").disableSelection();
 
 $("li").addClass("ui-widget-content");
@@ -251,21 +259,25 @@ $(document).ready(function() {
     });
 
     $('#commands').on('contextmenu', 'li', function(){ // pravym klikom odstrani li
-        $(this).closest('li').remove();
+        if($(this)[0].children[0].id !== "play") {
+            $(this).closest('li').remove();
+        }
     });
 });
 
 function myMove() {
+    var pomScene = scene.slice();
     var i = 0;
     var elem = document.getElementById("car");
     var pos = 0;
-    var posun = 70;
+    var posun = 80;
     var id = setInterval(frame, 2000);
     var pom = 0;
     pred = "#"+$("#commands").children()[0].children[0].id;
     $(pred).css({"border-color": "red",
         "border-width":"3px",
-        "border-style":"solid"});
+        "border-style":"solid",
+        "border-radius": "49%",});
     function frame() {
         var childrens = $("#commands").children();
 
@@ -290,11 +302,16 @@ function myMove() {
                 $("#myModal .modal-body").text('Nepodarilo sa ti pozbierat vsetky mrkvy. Skus to znovu :)');
                 elem.style.left = '0px';
                 numPickCarrots = 0;
+                $("#car").empty();
+                $("#hills").empty();
+                numPickCarrots = 0;
+                result = 0;
+                drawScene(currentLevel, pomScene);
                 document.getElementById("carrotsNum").textContent = numPickCarrots;
                 if(pred != ''){
                     $(pred).css({"border-color": "white",
                         "border-width":"3px",
-                        "border-style":"solid"});
+                        "border-style":"solid",});
                 }
             }
         } else {
@@ -303,7 +320,6 @@ function myMove() {
                     pos += posun;
                     elem.style.left = pos + 'px';
                     pom++;
-                    posun = 70;
                     if(pred != ''){
                         $(pred).css({"border-color": "white",
                             "border-width":"3px",
@@ -311,7 +327,8 @@ function myMove() {
                     }
                     $("#krok"+i).css({"border-color": "red",
                         "border-width":"3px",
-                        "border-style":"solid"});
+                        "border-style":"solid",
+                        "border-radius": "49%",});
                     pred = "#krok"+i;
                 }
             }else if(childrens[i].children[0].className === "mrkva1"){
@@ -322,10 +339,11 @@ function myMove() {
                 }
                 $("#mrkva1"+i).css({"border-color": "red",
                     "border-width":"3px",
-                    "border-style":"solid"});
+                    "border-style":"solid",
+                    "border-radius": "49%",});
                 pred = "#mrkva1"+i;
                 if(scene[pom] == 1){
-                    $('#'+pom).attr('src', 'images/kopcek.png');
+                    $('#'+pom).attr('src', 'images/kopcek_bez_mrkvy.png');
                     $('#'+pom).attr('height', '75px');
                     $('#'+pom).attr('width', '75px');
                     scene[pom] = 0;
@@ -342,10 +360,11 @@ function myMove() {
                 }
                 $("#mrkva2"+i).css({"border-color": "red",
                     "border-width":"3px",
-                    "border-style":"solid"});
+                    "border-style":"solid",
+                    "border-radius": "49%",});
                 pred = "#mrkva2"+i;
                 if(scene[pom] == 2){
-                    $('#'+pom).attr('src', 'images/kopcek.png');
+                    $('#'+pom).attr('src', 'images/kopcek_bez_mrkvy.png');
                     $('#'+pom).attr('height', '75px');
                     $('#'+pom).attr('width', '75px');
                     scene[pom] = 0;
@@ -361,7 +380,7 @@ function myMove() {
 }
 
 document.addEventListener("contextmenu", function (e) {
-   // e.preventDefault();
+  //  e.preventDefault();
 }, false);
 
 function restart() {
